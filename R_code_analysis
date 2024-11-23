@@ -309,14 +309,14 @@ BMI_BAG_sum_FDR <- BMI_BAG_sum %>% dplyr::filter(FDR_Adjusted_P_Value<0.05)
 
 
 # Calculate quartiles for the SPARE_AD column
-ANALYST_2_no_HLA_Q <- Imaging_proteomics_2014 %>%
+quar_Imaging_proteomics_2014 <- Imaging_proteomics_2014 %>%
   mutate(SPARE_AD_Quartile = ntile(SPARE_AD, 4))
 
 
-#TAKE A SUBSET WITH SPARE HIGHEST AND LOWEST QUARTILE
-subset_ANALYST_2_no_HLA_Q <- subset(ANALYST_2_no_HLA_Q , SPARE_AD_Quartile %in% c("1", "4"))
+#Take a subset with spare-ad highest and lowest quartiles 
+subset_quar_Imaging_proteomics_2014 <- subset(quar_Imaging_proteomics_2014 , SPARE_AD_Quartile %in% c("1", "4"))
 
-subset_ANALYST_2_no_HLA_Q_binary <- mutate(subset_ANALYST_2_no_HLA_Q, SPARE_AD_Quartile = case_when(
+subset_quar_Imaging_proteomics_2014_binary <- mutate(subset_quar_Imaging_proteomics_2014, SPARE_AD_Quartile = case_when(
   SPARE_AD_Quartile == "4" ~ 1,
   SPARE_AD_Quartile == "1" ~ 0,
   TRUE ~ SPARE_AD_Quartile  # Keep other values unchanged
@@ -334,9 +334,9 @@ logistic_results_df <- data.frame(
 
 for (protein_column in 464:1926) {
  
-  protein_variable <- colnames(subset_ANALYST_2_no_HLA_Q_binary)[protein_column]
+  protein_variable <- colnames(subset_quar_Imaging_proteomics_2014_binary)[protein_column]
   formula <- as.formula(paste("SPARE_AD_Quartile", "~", protein_variable)) 
-  logistic_model <- glm(formula, family = binomial, data = subset_ANALYST_2_no_HLA_Q_binary)
+  logistic_model <- glm(formula, family = binomial, data = subset_quar_Imaging_proteomics_2014_binary)
   coefficient <- summary(logistic_model)$coefficients[as.character(protein_variable), "Estimate"]
   p_value <- summary(logistic_model)$coefficients[as.character(protein_variable), "Pr(>|z|)"]
   odds_ratio <- exp(coefficient)
@@ -367,11 +367,11 @@ correlation_results <- data.frame(
 )
 
 for (i in 464:1926) {
-  protein_name <- colnames(subset_ANALYST_2_no_HLA_Q_binary)[i]
+  protein_name <- colnames(subset_quar_Imaging_proteomics_2014_binary)[i]
   
   # Calculate the Point-Biserial Correlation coefficient
-  correlation_result <- cor.test(subset_ANALYST_2_no_HLA_Q_binary$SPARE_AD_Quartile, 
-                                 subset_ANALYST_2_no_HLA_Q_binary[, i])
+  correlation_result <- cor.test(subset_quar_Imaging_proteomics_2014_binary$SPARE_AD_Quartile, 
+                                 subset_quar_Imaging_proteomics_2014_binary[, i])
   
   correlation_coefficient <- correlation_result$estimate
 
@@ -456,13 +456,13 @@ for (col in selected_columns) {
   formula <- as.formula(paste(col, "~ GDF15 + Age + Sex + DLICV"))
   glm_model <- glm(formula, data = Imaging_proteomics_2014_bv)
   summary_table <- summary(glm_model)$coefficients
-  OXT_summary <- summary_table["GDF15", c("Estimate", "Std. Error", "t value", "Pr(>|t|)")]
+  ummary <- summary_table["GDF15", c("Estimate", "Std. Error", "t value", "Pr(>|t|)")]
   model_results_df <- rbind(model_results_df, data.frame(
     BrainVolume = col,
-    Coefficient = OXT_summary["Estimate"],
-    StdError = OXT_summary["Std. Error"],
-    TStatistic = OXT_summary["t value"],
-    PValue = OXT_summary["Pr(>|t|)"]
+    Coefficient = summary["Estimate"],
+    StdError = summary["Std. Error"],
+    TStatistic = summary["t value"],
+    PValue = summary["Pr(>|t|)"]
   ))
 }
 
