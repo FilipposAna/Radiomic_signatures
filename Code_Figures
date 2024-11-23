@@ -1,0 +1,896 @@
+
+#Figure 2a
+library(plotly)
+library(dplyr)
+models <- df %>%
+  group_by(BMI) %>%
+  do(model = lm(SPARE_BA ~ Age, data = .))
+
+regression_data <- df %>%
+  group_by(BMI) %>%
+  do(data.frame(Age = seq(min(.$Age), max(.$Age), length.out = 100),
+                SPARE_BA = predict(lm(SPARE_BA ~ Age, data = .),
+                                   newdata = data.frame(Age = seq(min(.$Age), max(.$Age), length.out = 100)))))
+
+plot <- plot_ly(
+  data = Basline_All_Ebiomedicine_MRI,
+  x = ~Age,
+  y = ~SPARE_BA,
+  color = ~BMI,
+  colors = c("Normal weight" = "deepskyblue4", 
+             "Overweight" = "orange", 
+             "Obese" = "black"),  
+  type = 'scatter',
+  mode = 'markers',
+  marker = list(size = 6, opacity = 0.05),  
+  showlegend = FALSE  
+) %>%
+  layout(
+    xaxis = list(
+      title = "Chronological Age",
+      tickvals = seq(45, 85, by = 5),
+      titlefont = list(size = 18, color = 'black'),
+      tickfont = list(size = 14, color = 'black'),
+      showgrid = FALSE,
+      zeroline = FALSE,
+      mirror = TRUE,
+      linecolor = 'black',
+      linewidth = 1.5
+    ),
+    yaxis = list(
+      title = "Predicted Brain Age",
+      titlefont = list(size = 18, color = 'black'),
+      tickfont = list(size = 14, color = 'black'),
+      range = c(30, 100),
+      showgrid = FALSE,
+      zeroline = FALSE,
+      mirror = TRUE,
+      linecolor = 'black',
+      linewidth = 1.5
+    ),
+    font = list(family = "Arial", size = 14),
+    margin = list(l = 80, r = 40, b = 80, t = 50),
+    showlegend = TRUE,
+    plot_bgcolor = 'white',
+    paper_bgcolor = 'white'
+  )
+
+for (category in unique(df$BMI)) {
+  line_color <- ifelse(category == "Normal weight", "deepskyblue4", 
+                       ifelse(category == "Overweight", "orange", "black"))
+  line_name <- category  
+  
+  plot <- plot %>%
+    add_lines(
+      data = regression_data %>% filter(BMI == category),
+      x = ~Age,
+      y = ~SPARE_BA,
+      line = list(width = 2, dash = "solid", color = line_color),
+      name = line_name, 
+      showlegend = TRUE
+    )
+}
+
+
+
+#Figure 2b
+library(plotly)
+library(dplyr)
+models <- df %>%
+  group_by(BMI) %>%
+  do(model = lm(SPARE_AD ~ Age, data = .))
+
+regression_data <- df %>%
+  group_by(BMI) %>%
+  do(data.frame(Age = seq(min(.$Age), max(.$Age), length.out = 100),
+                SPARE_AD = predict(lm(SPARE_AD ~ Age, data = .),
+                                   newdata = data.frame(Age = seq(min(.$Age), max(.$Age), length.out = 100)))))
+
+plot <- plot_ly(
+  data = df,
+  x = ~Age,
+  y = ~SPARE_AD,
+  color = ~BMI,
+  colors = c("Normal weight" = "deepskyblue4", 
+             "Overweight" = "orange", 
+             "Obese" = "black"),  
+  type = 'scatter',
+  mode = 'markers',
+  marker = list(size = 6, opacity = 0.05),  
+  showlegend = FALSE 
+) %>%
+  layout(
+    xaxis = list(
+      title = "Chronological Age",
+      tickvals = seq(45, 85, by = 5),
+      titlefont = list(size = 18, color = 'black'),
+      tickfont = list(size = 14, color = 'black'),
+      showgrid = FALSE,
+      zeroline = FALSE,
+      mirror = TRUE,
+      linecolor = 'black',
+      linewidth = 1.5
+    ),
+    yaxis = list(
+      title = "SPARE-AD",
+      titlefont = list(size = 16, color = 'black'),
+      tickfont = list(size = 14, color = 'black'),
+      range = c(-2, 0.5), 
+      showgrid = FALSE,
+      zeroline = FALSE,
+      mirror = TRUE,
+      linecolor = 'black',
+      linewidth = 1.5
+    ),
+    font = list(family = "Arial", size = 14),
+    margin = list(l = 80, r = 40, b = 80, t = 50),
+    showlegend = TRUE,
+    plot_bgcolor = 'white',
+    paper_bgcolor = 'white'
+  )
+
+for (category in unique(df$BMI)) {
+  line_color <- ifelse(category == "Normal weight", "deepskyblue4", 
+                       ifelse(category == "Overweight", "orange", "black"))
+  line_name <- category 
+  
+  plot <- plot %>%
+    add_lines(
+      data = regression_data %>% filter(BMI == category),
+      x = ~Age,
+      y = ~SPARE_AD,
+      line = list(width = 2, dash = "solid", color = line_color),
+      name = line_name, 
+      showlegend = TRUE
+    )
+}
+
+
+
+#Figure 2c
+models <- df %>%
+  group_by(Sex) %>%
+  do(model = lm(SPARE_BA ~ Age, data = .))
+
+regression_data <- df %>%
+  group_by(Sex) %>%
+  do(data.frame(Age = seq(min(.$Age), max(.$Age), length.out = 100),
+                SPARE_BA = predict(lm(SPARE_BA ~ Age, data = .),
+                                   newdata = data.frame(Age = seq(min(.$Age), max(.$Age), length.out = 100)))))
+
+# Load Plotly library
+library(plotly)
+
+plot <- plot_ly(
+  data = df,
+  x = ~Age,
+  y = ~SPARE_BA,
+  color = ~Sex,
+  colors = c("F" = "#d62728", "M" = "#1f77b4"),
+  type = 'scatter',
+  mode = 'markers',
+  marker = list(size = 6, opacity = 0.3),
+  showlegend = FALSE  
+) %>%
+  layout(
+    xaxis = list(
+      title = "Chronological Age",
+      tickvals = seq(45, 85, by = 5),
+      titlefont = list(size = 18, color = 'black'),
+      tickfont = list(size = 14, color = 'black'),
+      showgrid = FALSE,
+      zeroline = FALSE,
+      mirror = TRUE,
+      linecolor = 'black',
+      linewidth = 1.5
+    ),
+    yaxis = list(
+      title = "Predicted Brain Age",
+      titlefont = list(size = 18, color = 'black'),
+      tickfont = list(size = 14, color = 'black'),
+      range = c(30, 100),
+      showgrid = FALSE,
+      zeroline = FALSE,
+      mirror = TRUE,
+      linecolor = 'black',
+      linewidth = 1.5
+    ),
+    font = list(family = "Arial", size = 14),
+    margin = list(l = 80, r = 40, b = 80, t = 50),
+    showlegend = TRUE,
+    plot_bgcolor = 'white',
+    paper_bgcolor = 'white'
+  )
+
+for (sex_category in unique(df$Sex)) {
+  line_color <- ifelse(sex_category == "F", "#d62728", "#1f77b4")
+  line_name <- ifelse(sex_category == "F", "Females", "Males")
+  
+  plot <- plot %>%
+    add_lines(
+      data = regression_data %>% filter(Sex == sex_category),
+      x = ~Age,
+      y = ~SPARE_BA,
+      line = list(width = 2, dash = "solid", color = line_color),
+      name = line_name,  
+      showlegend = TRUE
+    )
+}
+
+
+
+#Figure 2d
+models <- df %>%
+  group_by(Sex) %>%
+  do(model = lm(SPARE_AD ~ Age, data = .))
+
+regression_data <- df %>%
+  group_by(Sex) %>%
+  do(data.frame(Age = seq(min(.$Age), max(.$Age), length.out = 100),
+                SPARE_AD = predict(lm(SPARE_AD ~ Age, data = .),
+                                   newdata = data.frame(Age = seq(min(.$Age), max(.$Age), length.out = 100)))))
+
+plot <- plot_ly(
+  data = df,
+  x = ~Age,
+  y = ~SPARE_AD,
+  color = ~Sex,
+  colors = c("F" = "#d62728", "M" = "#1f77b4"),
+  type = 'scatter',
+  mode = 'markers',
+  marker = list(size = 6, opacity = 0.05),
+  showlegend = FALSE  
+) %>%
+  layout(
+    xaxis = list(
+      title = "Chronological Age",
+      tickvals = seq(45, 85, by = 5),
+      titlefont = list(size = 18, color = 'black'),
+      tickfont = list(size = 14, color = 'black'),
+      showgrid = FALSE,
+      zeroline = FALSE,
+      mirror = TRUE,
+      linecolor = 'black',
+      linewidth = 1.5
+    ),
+    yaxis = list(
+    title = "SPARE-AD", 
+                 titlefont = list(size = 16), 
+                 tickfont = list(size = 14),
+                 range = c(-2, 0.5),  
+    showgrid = FALSE,
+      zeroline = FALSE,
+      mirror = TRUE,
+      linecolor = 'black',
+      linewidth = 1.5
+    ),
+    font = list(family = "Arial", size = 14),
+    margin = list(l = 80, r = 40, b = 80, t = 50),
+    showlegend = TRUE,
+    plot_bgcolor = 'white',
+    paper_bgcolor = 'white'
+  )
+for (sex_category in unique(df$Sex)) {
+  line_color <- ifelse(sex_category == "F", "#d62728", "#1f77b4")
+  line_name <- ifelse(sex_category == "F", "Females", "Males")
+  
+  plot <- plot %>%
+    add_lines(
+      data = regression_data %>% filter(Sex == sex_category),
+      x = ~Age,
+      y = ~SPARE_AD,
+      line = list(width = 2, dash = "solid", color = line_color),
+      name = line_name,  
+      showlegend = TRUE
+    )
+}
+
+
+#Figure 2e 
+brain_aging_data <- data.frame(
+  Group = c("Obesity", "Obesity", "Obesity", "Obesity", "Obesity", "Obesity", 
+            "Overweight", "Overweight", "Overweight", "Overweight", "Overweight", "Overweight"),
+  Sex = c("Overall", "Males", "Females", "Overall", "Males", "Females", 
+          "Overall", "Males", "Females", "Overall", "Males", "Females"),
+  Age_Group = c("Midlife", "Midlife", "Midlife", "Late-life", "Late-life", "Late-life",
+                "Midlife", "Midlife", "Midlife", "Late-life", "Late-life", "Late-life"),
+  SPARE_BA_Months = c(11.59, 21.00, 5.245, 8.051, 24.29, -5.382, 
+                      2.812, 7.687, 0.009, 1.677, 10.12, -5.098),
+  SE = c(1.512, 2.494, 1.886, 1.642, 2.515, 2.142,
+         1.288, 2.074, 1.637, 1.304, 1.943, 1.747),
+  p_value = c(0.00, 0.00, 0.005, 0.000, 0.00, 0.003, 
+              0.029, 0.000, 0.955, 0.199, 0.00, 0.004) 
+)
+
+brain_aging_data$significant <- ifelse(brain_aging_data$p_value < 0.05, "*", "")
+barplot_spareba <-
+
+ggplot(brain_aging_data, aes(y = interaction(Group, Age_Group), x = SPARE_BA_Months, fill = Sex)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+  geom_errorbar(aes(xmin = SPARE_BA_Months - SE, xmax = SPARE_BA_Months + SE), 
+                width = 0.3, position = position_dodge(width = 0.8), color = "black") +
+  geom_vline(xintercept = 0, color = "black", linetype = "dashed", size = 0.8) + 
+  geom_text(aes(label = significant), position = position_dodge(width = 0.8), vjust = -0.5, size = 6, color = "red") + 
+  scale_fill_manual(values = c("Overall" = "darkgray", "Males" = "steelblue", "Females" = "salmon")) +
+  labs(
+    y = "",
+    x = "Brain aging in months",
+    fill = "Sex"
+  ) +
+  scale_y_discrete(labels = c("Midlife Obesity", "Midlife Overweight", "Late-life Obesity", "Late-life Overweight")) +  
+  theme_minimal(base_size = 16) +
+  theme(
+    panel.grid.major = element_blank(),  
+    panel.grid.minor = element_blank(), 
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 18),  
+    axis.title = element_text(size = 16, face = "bold"), 
+    axis.text = element_text(size = 14, face = "bold"),  
+    panel.background = element_rect(fill = "white"),  
+    plot.background = element_rect(fill = "white"),  
+    panel.border = element_rect(color = "black", fill = NA, size = 1),  
+    legend.position = "bottom",  
+    legend.box = "horizontal",  
+    legend.key = element_rect(fill = "white", color = NA),  
+    legend.key.size = unit(0.5, "cm"),  
+    legend.text = element_text(size = 12), 
+    legend.title = element_text(face = "bold")  
+  )
+
+
+
+#Figure 2f
+ brain_aging_data <- data.frame(
+    Group = c("Obesity", "Obesity", "Obesity", "Obesity", "Obesity", "Obesity", 
+              "Overweight", "Overweight", "Overweight", "Overweight", "Overweight", "Overweight"),
+    Sex = c("Overall", "Males", "Females", "Overall", "Males", "Females", 
+            "Overall", "Males", "Females", "Overall", "Males", "Females"),
+    Age_Group = c("Midlife", "Midlife", "Midlife", "Late-life", "Late-life", "Late-life",
+                  "Midlife", "Midlife", "Midlife", "Late-life", "Late-life", "Late-life"),
+    SPARE_AD = c(0.019, 0.023, 0.006, -0.046, 0.025, -0.027, 
+                 0.001, 0.017, -0.01, -0.015, 0.003, -0.03), 
+    SE = c(0.006, 0.01, 0.008, 0.007, 0.01, 0.009, 
+           0.006, 0.009, 0.007, 0.006, 0.009, 0.008), 
+    p_value = c(0.056, 0.027, 0.418, 0.525, 0.028, 0.003, 
+                0.837, 0.059, 0.144, 0.074, 0.707, 6.6e-05) 
+)
+  brain_aging_data$significant <- ifelse(brain_aging_data$p_value < 0.05, "*", "")
+  
+  plot_AD <-
+  ggplot(brain_aging_data, aes(y = interaction(Group, Age_Group), x = SPARE_AD, fill = Sex)) +
+    geom_bar(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+    geom_errorbar(aes(xmin = SPARE_AD - SE, xmax = SPARE_AD + SE), 
+                  width = 0.3, position = position_dodge(width = 0.8), color = "black") +
+    geom_vline(xintercept = 0, color = "black", linetype = "dashed", size = 0.8) +
+    
+     geom_text(aes(label = significant), position = position_dodge(width = 0.8), vjust = -0.5, size = 6, color = "red") + 
+    scale_fill_manual(values = c("Overall" = "darkgray", "Males" = "steelblue", "Females" = "salmon")) +
+    labs(
+      y = "", 
+      x = "SPARE-AD", 
+      fill = "Sex"
+    ) +
+    scale_y_discrete(labels = c("Midlife Obesity", "Midlife Overweight", "Late-life Obesity", "Late-life Overweight")) +  
+    theme_minimal(base_size = 16) +
+    theme(
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),  
+      plot.title = element_text(hjust = 0.5, face = "bold", size = 18), 
+      axis.title = element_text(size = 16, face = "bold"),  
+      axis.text = element_text(size = 14, face = "bold"),  
+      panel.background = element_rect(fill = "white"),  
+      plot.background = element_rect(fill = "white"), 
+      panel.border = element_rect(color = "black", fill = NA, size = 1),  
+      legend.position = "bottom", 
+      legend.box = "horizontal", 
+      legend.key = element_rect(fill = "white", color = NA), 
+      legend.key.size = unit(0.5, "cm"),  
+      legend.text = element_text(size = 12),  
+      legend.title = element_text(face = "bold")  
+    )
+  
+
+#Figure 3a
+df$BMI<- factor(df$BMI, 
+                  levels = c("Normal weight", "Overweight", "Obese"),
+                  labels = c("Normal weight", "Overweight", "Obesity"))
+df$BMI <- factor(df$BMI, levels = c("Normal weight", "Overweight", "Obesity"))
+NB_plot <- ggplot(df, aes(x = BMI, y = Abeta_CSF_nearest_2.0, fill = BMI)) + 
+  geom_jitter(aes(color = BMI), width = 0.15, alpha = 0.5, size = 2) + 
+  geom_boxplot(outlier.shape = NA, width = 0.6, size = 1) + 
+  scale_fill_manual(values = c("Normal weight" = "deepskyblue4",   
+                               "Overweight" = "orange",   
+                               "Obesity" = "black")) +  
+  scale_color_manual(values = c("Normal weight" = "deepskyblue4",   
+                                "Overweight" = "orange",   
+                                "Obesity" = "black")) + 
+  labs(title = "",   
+       x = "",   
+       y = "  Αβ Concentration (log2)") +  
+  theme_minimal(base_size = 16) + 
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 18), 
+    axis.title = element_text(size = 16, face = "bold"),  
+    axis.text = element_text(size = 14),  
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),  
+    plot.background = element_rect(fill = "white", color = NA),  
+    panel.background = element_rect(fill = "white"),  
+    legend.position = "none",  
+    axis.line = element_line(size = 0.8, color = "black")  
+  )
+
+
+df$BMI<- factor(df$BMI, 
+                    levels = c("Normal weight", "Overweight", "Obese"),
+                    labels = c("Normal weight", "Overweight", "Obesity"))
+df$BMI <- factor(df$BMI, levels = c("Normal weight", "Overweight", "Obesity"))
+NB_plot1 <- ggplot(df, aes(x = BMI, y = PTau_CSF_nearest_2.0, fill = BMI)) + 
+  geom_jitter(aes(color = BMI), width = 0.15, alpha = 0.5, size = 2) + 
+  geom_boxplot(outlier.shape = NA, width = 0.6, size = 1) +  
+  scale_fill_manual(values = c("Normal weight" = "deepskyblue4",   
+                               "Overweight" = "orange",   
+                               "Obesity" = "black")) +  
+  scale_color_manual(values = c("Normal weight" = "deepskyblue4",   
+                                "Overweight" = "orange",   
+                                "Obesity" = "black")) +  
+  labs(title = "",   
+       x = "",   
+       y = "  p-Tau Concentration (log2)") +  
+  theme_minimal(base_size = 16) +  
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 18),  
+    axis.title = element_text(size = 16, face = "bold"),  
+    axis.text = element_text(size = 14),  
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),  
+    plot.background = element_rect(fill = "white", color = NA),  
+    panel.background = element_rect(fill = "white"),  
+    legend.position = "none", 
+    axis.line = element_line(size = 0.8, color = "black")  
+  )
+
+df$BMI<- factor(df$BMI, 
+                   levels = c("Normal weight", "Overweight", "Obese"),
+                   labels = c("Normal weight", "Overweight", "Obesity"))
+df$BMI <- factor(df$BMI, levels = c("Normal weight", "Overweight", "Obesity"))
+NB_plot2 <- ggplot(df, aes(x = BMI, y = Tau_CSF_nearest_2.0, fill = BMI)) + 
+  geom_jitter(aes(color = BMI), width = 0.15, alpha = 0.5, size = 2) +  
+  geom_boxplot(outlier.shape = NA, width = 0.6, size = 1) +  
+  scale_fill_manual(values = c("Normal weight" = "deepskyblue4",   
+                               "Overweight" = "orange",   
+                               "Obesity" = "black")) +  
+  scale_color_manual(values = c("Normal weight" = "deepskyblue4",   
+                                "Overweight" = "orange",   
+                                "Obesity" = "black")) +  
+  labs(title = "",   
+       x = "",   
+       y = "  Total Tau Concentration (log2)") +  
+  theme_minimal(base_size = 16) +  
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 18),  
+    axis.title = element_text(size = 16, face = "bold"),  
+    axis.text = element_text(size = 14), 
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),  
+    plot.background = element_rect(fill = "white", color = NA),  
+    panel.background = element_rect(fill = "white"), 
+    legend.position = "none",  
+    axis.line = element_line(size = 0.8, color = "black")  
+  )
+
+
+df$BMI<- factor(df$BMI, 
+                   levels = c("Normal weight", "Overweight", "Obese"),
+                   labels = c("Normal weight", "Overweight", "Obesity"))
+df$BMI <- factor(df$BMI, levels = c("Normal weight", "Overweight", "Obesity"))
+NB_plot11 <- ggplot(df, aes(x = BMI, y = Abeta_CSF_nearest_2.0, fill = BMI)) + 
+  geom_jitter(aes(color = BMI), width = 0.15, alpha = 0.5, size = 2) +  
+  geom_boxplot(outlier.shape = NA, width = 0.6, size = 1) + 
+  scale_fill_manual(values = c("Normal weight" = "deepskyblue4",   
+                               "Overweight" = "orange",   
+                               "Obesity" = "black")) + 
+  scale_color_manual(values = c("Normal weight" = "deepskyblue4",   
+                                "Overweight" = "orange",   
+                                "Obesity" = "black")) +  
+  labs(title = "",   
+       x = "",   
+       y = "  Αβ Concentration (log2)") + 
+  theme_minimal(base_size = 16) +  
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 18),  
+    axis.title = element_text(size = 16, face = "bold"), 
+    axis.text = element_text(size = 14),  
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),  
+    plot.background = element_rect(fill = "white", color = NA),  
+    panel.background = element_rect(fill = "white"), 
+    legend.position = "none",  
+    axis.line = element_line(size = 0.8, color = "black")  
+  )
+
+
+df$BMI<- factor(df$BMI, 
+                 levels = c("Normal weight", "Overweight", "Obese"),
+                 labels = c("Normal weight", "Overweight", "Obesity"))
+df$BMI <- factor(df$BMI, levels = c("Normal weight", "Overweight", "Obesity"))
+NB_plot12 <- ggplot(df, aes(x = BMI, y = PTau_CSF_nearest_2.0, fill = BMI)) + 
+  geom_jitter(aes(color = BMI), width = 0.15, alpha = 0.5, size = 2) +  
+  geom_boxplot(outlier.shape = NA, width = 0.6, size = 1) +  
+  scale_fill_manual(values = c("Normal weight" = "deepskyblue4",   
+                               "Overweight" = "orange",   
+                               "Obesity" = "black")) +  
+  scale_color_manual(values = c("Normal weight" = "deepskyblue4",   
+                                "Overweight" = "orange",   
+                                "Obesity" = "black")) +  
+  labs(title = "",   
+       x = "",   
+       y = "  p-Tau Concentration (log2)") + 
+  theme_minimal(base_size = 16) +  
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 18),  
+    axis.title = element_text(size = 16, face = "bold"),  
+    axis.text = element_text(size = 14),  
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),  
+    plot.background = element_rect(fill = "white", color = NA),  
+    panel.background = element_rect(fill = "white"),  
+    legend.position = "none", 
+    axis.line = element_line(size = 0.8, color = "black") 
+  )
+
+
+df$BMI<- factor(df$BMI, 
+                   levels = c("Normal weight", "Overweight", "Obese"),
+                   labels = c("Normal weight", "Overweight", "Obesity"))
+df$BMI <- factor(df$BMI, levels = c("Normal weight", "Overweight", "Obesity"))
+NB_plot13 <- ggplot(df, aes(x = BMI, y = Tau_CSF_nearest_2.0, fill = BMI)) + 
+  geom_jitter(aes(color = BMI), width = 0.15, alpha = 0.5, size = 2) +  
+  geom_boxplot(outlier.shape = NA, width = 0.6, size = 1) +  
+  scale_fill_manual(values = c("Normal weight" = "deepskyblue4",   
+                               "Overweight" = "orange",   
+                               "Obesity" = "black")) +  
+  scale_color_manual(values = c("Normal weight" = "deepskyblue4",   
+                                "Overweight" = "orange",   
+                                "Obesity" = "black")) +  
+  labs(title = "",   
+       x = "",   
+       y = "   Total Tau Concentration (log2)") + 
+  theme_minimal(base_size = 16) + 
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 18),  
+    axis.title = element_text(size = 16, face = "bold"),  
+    axis.text = element_text(size = 14),  
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(), 
+    plot.background = element_rect(fill = "white", color = NA),  
+    panel.background = element_rect(fill = "white"),  
+    legend.position = "none",  
+    axis.line = element_line(size = 0.8, color = "black")  
+  )
+
+library(patchwork)
+combined_plot <- (NB_plot11 | NB_plot) / 
+  (NB_plot12 | NB_plot1) / 
+  (NB_plot13 | NB_plot2)
+
+
+
+
+#Figure 3b
+cognitive_results <- data.frame(
+  Test = c("TMT-A", "TMT-B", "DSB", "CVLT", "DSF", "MMSE", 
+           "TMT-A", "TMT-B", "DSB", "CVLT", "DSF", "MMSE",
+           "TMT-A", "TMT-B", "DSB", "CVLT", "DSF", "MMSE", 
+           "TMT-A", "TMT-B", "DSB", "CVLT", "DSF", "MMSE"),
+  Age_Group = c(rep("Midlife Obesity", 6), rep("Late-life Obesity", 6), rep("Midlife Overweight", 6), rep("Late-life Overweight", 6)),
+  Beta = c(0.115, 0.149, -0.466, -0.379, -0.391, -0.509, 
+           0.08, 0.174, -0.319, -0.170, -0.185, -0.064,
+           -0.026, 0.041, -0.215, -0.234, -0.095, -0.05, 
+           0.004, 0.063, 0.03, -0.06, 0.04, 0.012),
+  CI_Lower = c(0.115 - 0.024, 0.149 - 0.024, -0.466 - 0.113, -0.379 - 0.139, -0.391 - 0.137, -0.509 - 0.164, 
+               0.08 - 0.029, 0.174 - 0.025, -0.319 - 0.112, -0.170 - 0.105, -0.185 - 0.113, -0.064 - 0.110,
+               -0.026 - 0.02, 0.041 - 0.02, -0.215 - 0.112, -0.234 - 0.129, -0.095 - 0.112, -0.05 - 0.168,
+               0.004 - 0.019, 0.063 - 0.019, 0.03 - 0.1, -0.06 - 0.089, 0.04 - 0.096, 0.012 - 0.094),
+  CI_Upper = c(0.115 + 0.024, 0.149 + 0.024, -0.466 + 0.113, -0.379 + 0.139, -0.391 + 0.137, -0.509 + 0.164, 
+               0.08 + 0.029, 0.174 + 0.025, -0.319 + 0.112, -0.170 + 0.105, -0.185 + 0.113, -0.064 + 0.110,
+               -0.026 + 0.02, 0.041 + 0.02, -0.215 + 0.112, -0.234 + 0.129, -0.095 + 0.112, -0.05 + 0.168,
+               0.004 + 0.019, 0.063 + 0.019, 0.03 + 0.1, -0.06 + 0.089, 0.04 + 0.096, 0.012 + 0.094),
+  P_Value = c(1.29e-06, 4.2e-10, 4.59e-05, 0.007, 6.42e-04, 0.002, 
+              0.001, 5.39e-12, 0.005, 0.105, 0.103, 0.563,
+              0.518, 0.034, 0.054, 0.07, 0.396, 0.740,
+              0.837, 0.001, 0.755, 0.501, 0.679, 0.9)
+)
+
+library(ggplot2)
+library(dplyr)
+cognitive_results <- cognitive_results %>%
+  mutate(Significance = ifelse(P_Value <= 0.05, "Significant", "Not Significant"))
+
+plot_cognition <- ggplot(cognitive_results, aes(x = reorder(Test, Beta), y = -log10(P_Value), color = Significance, shape = Age_Group)) +
+  geom_point(size = 4) +
+  geom_errorbar(aes(ymin = -log10(P_Value), ymax = -log10(P_Value)), width = 0.2) +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "black", size = 0.8) + 
+  scale_color_manual(values = c("Significant" = "blue", "Not Significant" = "gray")) +  
+  coord_flip() +
+  theme_minimal(base_size = 16) +
+  theme(
+    panel.grid.major = element_blank(),  
+    panel.grid.minor = element_blank(), 
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 18),  
+    axis.title = element_text(size = 16, face = "bold"),  
+    axis.text = element_text(size = 14,face = "bold"),  
+    panel.background = element_rect(fill = "white"),  
+    plot.background = element_rect(fill = "white"),  
+    panel.border = element_rect(color = "black", fill = NA, size = 1),  
+    legend.position = "bottom", 
+    legend.box = "horizontal", 
+    legend.key = element_rect(fill = "white", color = NA),  
+    legend.key.size = unit(0.5, "cm"),  
+    legend.text = element_text(size = 12), 
+    legend.title = element_text(face = "bold")
+  ) +
+  labs(
+    x = "Cognitive Test",
+    y = "-log10(P-Value)",
+    shape = "Group"
+  )
+
+
+
+
+
+
+
+
+
+#Figure 4a
+volcano_plot_fdr <- ggplot(significant_lipids_data, aes(x = Coefficient, y = -log10(FDR_Adjusted))) +
+  geom_point(aes(color = ifelse(FDR_Adjusted < bonferroni_cutoff, "Significant", "Not significant")), alpha = 0.7, size = 1) +
+  geom_hline(yintercept = -log10(bonferroni_cutoff), linetype = "dashed", color = "red") +
+  geom_text_repel(data = subset(significant_lipids_data, FDR_Adjusted < bonferroni_cutoff), aes(label = Lipid), 
+                  size = 3, color = "black", vjust = -0.5, hjust = -0.5, check_overlap = TRUE) +
+  labs(title = "Volcano Plot of Regression Results BAG (FDR-adjusted)",
+       x = "Beta Coefficient",
+       y = "-log10(FDR-adjusted P-value)",
+       color = "Significance") +
+  theme_minimal()
+
+
+#Take top 20
+significant_lipids_filtered <- subset(significant_lipids_data, FDR_Adjusted < 0.05)
+
+top_10_coefficients <- head(significant_lipids_filtered[order(abs(significant_lipids_filtered$Coefficient), decreasing = TRUE), ], 20)
+
+volcano_plot_fdr <- ggplot(significant_lipids_data, aes(x = Coefficient, y = -log10(FDR_Adjusted))) +
+  geom_point(aes(color = ifelse(FDR_Adjusted < bonferroni_cutoff, "Significant", "Not significant")), alpha = 0.7, size = 2) +
+  geom_hline(yintercept = -log10(bonferroni_cutoff), linetype = "dashed", color = "red") +
+  geom_text_repel(data = subset(top_10_coefficients, FDR_Adjusted < bonferroni_cutoff), aes(label = Lipid), 
+                  size = 3, color = "black", vjust = -0.5, hjust = -0.5, check_overlap = TRUE) +
+  labs(title = "Volcano Plot of Regression Results BAG (FDR-adjusted)",
+       x = "Beta Coefficient",
+       y = "-log10(FDR-adjusted P-value)",
+       color = "Significance") +
+  scale_color_manual(values = c("Significant" = "deepskyblue4", "Not significant" = "#F8766D")) + 
+  theme_minimal()
+
+
+
+#Figure 4b
+All_FDR_BMI_BAG <- FDR_proteins_BAG_BMI.csv %>% dplyr::filter(FDR_Adjusted_P_Value<0.05)
+All_FDR_BMI_BAG$Color <- ifelse((All_FDR_BMI_BAG$Adjusted_SD_Difference > 0 & All_FDR_BMI_BAG$Coefficient > 0) | 
+                                  (All_FDR_BMI_BAG$Adjusted_SD_Difference < 0 & All_FDR_BMI_BAG$Coefficient < 0),
+                                "deepskyblue4", "#F8766D")
+                              
+plot <- ggplot(All_FDR_BMI_BAG, aes(x = Adjusted_SD_Difference, y = Coefficient, color = Color)) +
+  geom_point(size = 3) +  
+  geom_text_repel(aes(label = Biomarker), 
+                  box.padding = 0.3, 
+                  point.padding = 0.5, 
+                  segment.color = 'grey50', 
+                  size = 3) +  
+  geom_vline(xintercept = 0, linetype = "dashed", color = "black", size = 0.5) +  
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black", size = 0.5) +  
+  scale_color_identity() +  
+  labs(x = "BMI change per 1-SD", 
+       y = "BAG", 
+       title = "FDR-Adjusted Proteins Associated with BAG and BMI change per 1-SD") +
+  theme_minimal(base_size = 14) + 
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16),  
+    panel.grid.major = element_line(color = "grey80"),  
+    panel.grid.minor = element_blank(), 
+    panel.border = element_rect(color = "black", fill = NA)  
+  )
+
+
+#Figure 4c
+plot <- ggplot(aging_bmi, aes(x = BMI_Category, y = Biomarker, fill = Coefficient)) +
+  geom_tile(width = 0.7, height = 0.7) + 
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0, name = "Brain Aging Coefficient") +
+  theme_minimal(base_size = 12) +  
+  theme(
+    axis.text.x = element_text(angle = 60, hjust = 1, size = 6, face = "bold"),  
+    axis.text.y = element_text(size = 6, face = "bold"),  
+    axis.title.x = element_text(size = 0, face = "bold"),  
+    axis.title.y = element_text(size = 0, face = "bold"), 
+    legend.title = element_text(size = 6, face = "bold"), 
+    legend.text = element_text(size = 6),  
+    legend.position = "top", 
+    panel.grid = element_blank(),  
+    plot.background = element_rect(color = "white", fill = "white", size = 1),  
+    panel.border = element_rect(color = "black", fill = NA, size = 1), 
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5)  
+  ) +
+  guides(
+    fill = guide_colorbar(title.position = "top", title.hjust = 0.5)  
+  ) +
+  coord_fixed(ratio = 1.5) +  
+  geom_text(aes(label = ifelse(Arrow_Direction == "up", "↑", "↓")),  
+            color = "black", size = 2.5, fontface = "bold")  
+
+
+
+#Figure 4d
+regression_model <- lm(SPARE_BA ~ GDF15, data = GDF15)
+plot <- ggplot(GDF15, aes(x = GDF15, y = SPARE_BA)) +
+  geom_point(alpha = 0.2, color = 'cyan4', size = 3) + 
+  geom_smooth(method = "lm", color = "black", fill = "azure4", alpha = 0.3) +  
+  labs(
+    x = "GDF15 Concentration (NPX value)",
+    y = "Predicted Brain Age"
+  ) +
+  theme_minimal() +  
+  theme(
+    text = element_text(family = "Arial", size = 14), 
+    axis.title = element_text(size = 16, color = 'black', face = "bold"),  
+    axis.text = element_text(size = 14, color = 'black', face = "bold"),  
+    panel.background = element_rect(fill = "white"), 
+    panel.grid = element_blank(), 
+    panel.border = element_rect(color = "black", fill = NA, size = 1.5), 
+    plot.background = element_rect(fill = "white")  
+  )
+
+
+
+
+#Figure 4e
+regression_model <- lm(SPARE_AD ~ GDF15, data = GDF15)
+plot <- ggplot(GDF15, aes(x = GDF15, y = SPARE_AD)) +
+  geom_point(alpha = 0.2, color = 'coral4', size = 3) + 
+  geom_smooth(method = "lm", color = "black", fill = "azure4", alpha = 0.3) +  
+    x = "GDF15 Concentration (NPX value)",
+    y = "SPARE-AD"
+  ) +
+  theme(
+    text = element_text(family = "Arial", size = 14), 
+    axis.title = element_text(size = 16, color = 'black', face = "bold"),  
+    axis.text = element_text(size = 14, color = 'black', face = "bold"),  
+    panel.background = element_rect(fill = "white"), 
+    panel.grid = element_blank(), 
+    panel.border = element_rect(color = "black", fill = NA, size = 1.5),  
+    plot.background = element_rect(fill = "white")  
+  )
+
+
+
+
+
+
+#Figure 4f
+regression_model <- lm(GDF15 ~ X21022.0.0, data = GDF15)
+plot <- ggplot(GDF15, aes(x = X21022.0.0, y = GDF15)) +
+  geom_point(alpha = 0.2, color = 'darkorchid', size = 3) + 
+  geom_smooth(method = "lm", color = "black", fill = "azure4", alpha = 0.3) +  
+  labs(
+    x = "Age",
+    y = "GDF15 Concentration (NPX value)"
+  ) +
+  theme_minimal() +  
+  theme(
+    text = element_text(family = "Arial", size = 14), 
+    axis.title = element_text(size = 16, color = 'black', face = "bold"),  
+    axis.text = element_text(size = 14, color = 'black', face = "bold"),  
+    panel.background = element_rect(fill = "white"),  
+    panel.grid = element_blank(),  
+    panel.border = element_rect(color = "black", fill = NA, size = 1.5), 
+    plot.background = element_rect(fill = "white")  
+  )
+
+
+#Figure 4g
+regression_model <- lm(GDF15 ~ BMI_nearest_2.0, data = GDF15)
+plot <- ggplot(GDF15, aes(x = BMI_nearest_2.0, y = GDF15)) +
+  geom_point(alpha = 0.2, color = 'coral', size = 3) + 
+  geom_smooth(method = "lm", color = "black", fill = "azure4", alpha = 0.3) +  
+  labs(
+    x = "BMI",
+    y = "GDF15 Concentration (NPX value)"
+  ) +
+  theme_minimal() + 
+  theme(
+    text = element_text(family = "Arial", size = 14),  
+    axis.title = element_text(size = 16, color = 'black', face = "bold"),  
+    axis.text = element_text(size = 14, color = 'black', face = "bold"), 
+    panel.background = element_rect(fill = "white"),  
+    panel.grid = element_blank(), 
+    panel.border = element_rect(color = "black", fill = NA, size = 1.5),  
+    plot.background = element_rect(fill = "white")  
+  )
+
+
+
+
+
+
+#Figure 4h
+GDF15$BMI<- factor(GDF15$BMI, 
+                                       levels = c("Normal weight", "Overweight", "Obese"),
+                                       labels = c("Normal weight", "Overweight", "Obesity"))
+GDF15$BMI <- factor(GDF15$BMI, levels = c("Normal weight", "Overweight", "Obesity"))
+NB_plot <- ggplot(GDF15, aes(x = BMI, y = GDF15, fill = BMI)) + 
+  geom_jitter(aes(color = BMI), width = 0.15, alpha = 0.5, size = 2) +  
+  geom_boxplot(outlier.shape = NA, width = 0.6, size = 1) +  
+  scale_fill_manual(values = c("Normal weight" = "deepskyblue4",   
+                               "Overweight" = "orange",   
+                               "Obesity" = "black")) +  
+  scale_color_manual(values = c("Normal weight" = "deepskyblue4",   
+                                "Overweight" = "orange",   
+                                "Obesity" = "black")) + 
+  labs(title = "",   
+       x = "",   
+       y = " GDF15 concentration (NPX value)") +  
+  theme_minimal(base_size = 16) +  
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 18),  
+    axis.title = element_text(size = 16, face = "bold"),  
+    axis.text = element_text(size = 14,  face = "bold"),  
+    panel.grid.major = element_blank(),  
+    panel.grid.minor = element_blank(),  
+    plot.background = element_rect(fill = "white", color = NA),  
+    panel.background = element_rect(fill = "white"),  
+    legend.position = "none",  
+    axis.line = element_line(size = 0.8, color = "black") 
+  )
+
+
+
+#Figure 4i
+library(ggplot2)
+library(ggrepel)
+
+
+label_data <- subset(Combo_Odds_R, Correlation_with_SPARE_AD > 0.25 & P_Value < bonferroni_cutoff)
+
+
+volcano_plot_fdr <- ggplot(Combo_Odds_R, aes(x = Odds_Ratio, y = -log10(P_Value))) +
+  geom_point(aes(color = ifelse(P_Value < bonferroni_cutoff & Correlation_with_SPARE_AD > 0.25, "P-value < 0.05 and r > 0.25", 
+                                ifelse(P_Value < bonferroni_cutoff, "P-value < 0.05", "Not significant"))), 
+             alpha = 0.7, size = 2) +
+  geom_hline(yintercept = -log10(bonferroni_cutoff), linetype = "dashed", color = "red") +
+  geom_text_repel(data = label_data, aes(label = Lipid), 
+                  size = 3, color = "black", vjust = -0.5, hjust = -0.5, check_overlap = TRUE) +
+  labs(title = "Volcano Plot of Odds Ratio for SPARE-AD quartiles",
+       x = "Odds Ratio",
+       y = "-log10(P-value)",
+       color = "Significance") +
+  scale_color_manual(values = c("P-value < 0.05" = "cyan3", "Not significant" = "#F8766D", 
+                                "P-value < 0.05 and r > 0.25" = "#00BA38")) +  
+  theme_minimal()+
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),  
+    axis.title.x = element_text(size = 14, face = "bold"),  
+    axis.title.y = element_text(size = 14, face = "bold"),  
+    axis.text.x = element_text(size = 12, face = "bold"),  
+    axis.text.y = element_text(size = 12, face = "bold"),  
+    legend.title = element_text(size = 12, face = "bold"),  
+    legend.text = element_text(size = 10), 
+    panel.grid = element_blank(),  
+    plot.background = element_rect(color = "white", fill = "white"),  
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  
+  )+
+  coord_cartesian(ylim = c(0, 10))  
+
+
+
+
+
