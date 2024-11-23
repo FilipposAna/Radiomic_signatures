@@ -1,0 +1,516 @@
+
+df <- istaging %>%
+  filter(Diagnosis_nearest_2.0 == "CN") %>%
+  dplyr::filter(!SPARE_BA == "NA") %>%
+  filter(Age >= 45, Age <= 85) %>%
+  dplyr::arrange(!desc(Age)) %>%
+  dplyr::filter(!duplicated(PTID))%>%
+  mutate(BMI = case_when(
+    BMI_nearest_2.0 >= 18.5 & BMI_nearest_2.0 < 25 ~ "Normal weight",
+    BMI_nearest_2.0 >= 25 & BMI_nearest_2.0 < 30 ~ "Overweight",
+    BMI_nearest_2.0 >= 30 ~ "Obese",
+    TRUE ~ "Unknown"
+  )) %>%
+  filter(BMI != "Unknown") 
+
+
+
+
+df_Midlife <- df %>%
+  filter(Age < 65) 
+
+df_Older <- df %>%
+  filter(Age >= 65) 
+
+
+
+outcome_model1 <- glm(SPARE_BA_Months ~ BMI +Age+ Sex + DLICV, data = df_Midlife)
+summary(outcome_model1)
+
+outcome_model2 <- glm(SPARE_BA_Months ~ BMI +Age+ Sex + DLICV, data = df_Older)
+summary(outcome_model2)
+
+outcome_model3 <- glm(SPARE_AD ~ BMI +Age+ Sex + DLICV, data = df_Midlife)
+summary(outcome_model3)
+
+outcome_model4 <- glm(SPARE_AD ~ BMI  +Age+ Sex + DLICV, data = df_Older)
+summary(outcome_model4)
+
+
+df_Midlife_Females <- df %>%
+  filter(Age < 65) %>%
+  filter(Sex == "F") 
+
+outcome_model5 <- glm(SPARE_BA_Months ~ BMI + Age+DLICV, data = df_Midlife_Females)
+summary(outcome_model5)
+outcome_model6 <- glm(SPARE_AD ~ BMI + Age+DLICV, data = df_Midlife_Females)
+summary(outcome_model6)
+
+df_Older_Females <- df %>%
+  filter(Age >= 65)  %>%
+  filter(Sex == "F") 
+
+outcome_model7 <- glm(SPARE_BA_Months ~ BMI + Age+DLICV, data = df_Older_Females)
+summary(outcome_model7)
+outcome_model8 <- glm(SPARE_AD ~ BMI + Age+DLICV, data = df_Older_Females)
+summary(outcome_model8)
+
+df_Midlife_Males <- df %>%
+  filter(Age < 65) %>%
+  filter(Sex == "M") 
+
+outcome_model9 <- glm(SPARE_BA_Months ~ BMI + Age+DLICV, data = df_Midlife_Males)
+summary(outcome_model9)
+outcome_model10 <- glm(SPARE_AD ~ BMI + Age+DLICV, data = df_Midlife_Males)
+summary(outcome_model10)
+
+df_Older_Males <- df %>%
+  filter(Age >= 65)  %>%
+  filter(Sex == "M") 
+
+outcome_model11 <- glm(SPARE_BA_Months ~ BMI + Age+DLICV, data = df_Older_Males)
+summary(outcome_model11)
+outcome_model12 <- glm(SPARE_AD ~ BMI + Age+DLICV, data = df_Older_Males)
+summary(outcome_model12)
+
+
+#Neurodegeneration biomarkers
+
+
+df$Tau_CSF_nearest_2.0 <- log2(df$Tau_CSF_nearest_2.0)
+df$PTau_CSF_nearest_2.0 <- log2(df$PTau_CSF_nearest_2.0)
+df$Abeta_CSF_nearest_2.0 <- log2(df$Abeta_CSF_nearest_2.0)
+
+TAU <- df_Midlife[complete.cases(df_Midlife[c("Tau_CSF_nearest_2.0")]), ]
+TAU11 <- TAU %>%
+  filter(Study=="ADNI") 
+outcome_model13 <- glm(Tau_CSF_nearest_2.0 ~ BMI + Age + Sex + DLICV, data = TAU11)
+summary(outcome_model13)
+
+PTAU <- df_Midlife[complete.cases(df_Midlife[c("PTau_CSF_nearest_2.0")]), ]
+PTAU11 <- PTAU %>%
+  filter(Study=="ADNI") 
+outcome_model14 <- glm(PTau_CSF_nearest_2.0 ~ BMI + Age + Sex + DLICV, data = PTAU11)
+summary(outcome_model14)
+
+AB <- df_Midlife[complete.cases(df_Midlife[c("Abeta_CSF_nearest_2.0")]), ]
+AB11 <- AB %>%
+  filter(Study=="ADNI") 
+outcome_model15 <- glm(Abeta_CSF_nearest_2.0 ~ BMI + Age + Sex + DLICV, data = AB11)
+summary(outcome_model15)
+
+
+
+
+
+TAU <- df_Older[complete.cases(df_Older[c("Tau_CSF_nearest_2.0")]), ]
+TAU1 <- TAU %>%
+  filter(Study=="ADNI") 
+outcome_model16 <- glm(Tau_CSF_nearest_2.0 ~ BMI + Age + Sex + DLICV, data = TAU1)
+summary(outcome_model16)
+
+PTAU <- df_Older[complete.cases(df_Older[c("PTau_CSF_nearest_2.0")]), ]
+PTAU1 <- PTAU %>%
+  filter(Study=="ADNI") 
+outcome_model17 <- glm(PTau_CSF_nearest_2.0 ~ BMI + Age + Sex + DLICV, data = PTAU1)
+summary(outcome_model17)
+
+AB <- df_Older[complete.cases(df_Older[c("Abeta_CSF_nearest_2.0")]), ]
+AB1 <- AB %>%
+  filter(Study=="ADNI") 
+outcome_model18 <- glm(Abeta_CSF_nearest_2.0 ~ BMI + Age + Sex + DLICV, data = AB1)
+summary(outcome_model18)
+
+
+
+
+#Cognitive tests
+
+#Midlife participants
+
+TMTA <- df_Midlife[complete.cases(df_Midlife[c("TMT_A")]), ]
+TMTA$TMT_A <- as.numeric(TMTA$TMT_A)
+TMTA$TMT_A_z <- scale(TMTA$TMT_A)
+outcome_model19 <- glm(TMT_A_z ~ BMI + Age + Sex + DLICV, data = TMTA)
+summary(outcome_model19)
+
+TMTB <- df_Midlife[complete.cases(df_Midlife[c("TMT_B")]), ]
+TMTB$TMT_B <- as.numeric(TMTB$TMT_B)
+TMTB$TMT_B_z <- scale(TMTB$TMT_B)
+outcome_model20 <- glm(TMT_B_z ~ BMI + Age + Sex + DLICV, data = TMTB)
+summary(outcome_model20)
+
+
+DSB <- df_Midlife[complete.cases(df_Midlife[c("Digit_Span_Backward")]), ]
+DSB$Digit_Span_Backward <- as.numeric(DSB$Digit_Span_Backward)
+DSB$Digit_Span_Backward_z <- scale(DSB$Digit_Span_Backward)
+outcome_model21 <- glm(Digit_Span_Backward_z ~ BMI + Age + Sex + DLICV, data = DSB)
+summary(outcome_model21)
+
+
+CVLT <- df_Midlife[complete.cases(df_Midlife[c("CVLT_Immediate")]), ]
+CVLT$CVLT_Immediate <- as.numeric(CVLT$CVLT_Immediate)
+CVLT$CVLT_Immediate_z <- scale(CVLT$CVLT_Immediate)
+outcome_model22 <- glm(CVLT_Immediate_z ~ BMI + Age + Sex + DLICV, data = CVLT)
+summary(outcome_model22)
+
+
+DSF <- df_Midlife[complete.cases(df_Midlife[c("Digit_Span_Forward")]), ]
+DSF$Digit_Span_Forward <- as.numeric(DSF$Digit_Span_Forward)
+DSF$Digit_Span_Forward_z <- scale(DSF$Digit_Span_Forward)
+outcome_model23 <- glm(Digit_Span_Forward_z ~ BMI + Age + Sex + DLICV, data = DSF)
+summary(outcome_model23)
+
+
+MMSE <- df_Midlife[complete.cases(df_Midlife[c("MMSE")]), ]
+MMSE$MMSE <- as.numeric(MMSE$MMSE)
+MMSE$MMSE_z <- scale(MMSE$MMSE)
+outcome_model24 <- glm(MMSE_z ~ BMI + Age + Sex + DLICV, data = MMSE)
+summary(outcome_model24)
+
+
+
+#Older participants
+
+TMTA <- df_Older[complete.cases(df_Older[c("TMT_A")]), ]
+TMTA$TMT_A_z <- scale(TMTA$TMT_A)
+TMTA$TMT_A <- as.numeric(TMTA$TMT_A)
+outcome_model25 <- glm(TMT_A_z ~ BMI + Age + Sex + DLICV, data = TMTA)
+summary(outcome_model25)
+
+
+TMTB <- df_Older[complete.cases(df_Older[c("TMT_B")]), ]
+TMTB$TMT_B <- as.numeric(TMTB$TMT_B)
+TMTB$TMT_B_z <- scale(TMTB$TMT_B)
+outcome_model26 <- glm(TMT_B_z ~ BMI + Age + Sex + DLICV, data = TMTB)
+summary(outcome_model26)
+
+
+DSB <- df_Older[complete.cases(df_Older[c("Digit_Span_Backward")]), ]
+DSB$Digit_Span_Backward <- as.numeric(DSB$Digit_Span_Backward)
+DSB$Digit_Span_Backward_z <- scale(DSB$Digit_Span_Backward)
+outcome_model27 <- glm(Digit_Span_Backward_z ~ BMI + Age + Sex + DLICV, data = DSB)
+summary(outcome_model27)
+
+CVLT <- df_Older[complete.cases(df_Older[c("CVLT_Immediate")]), ]
+CVLT$CVLT_Immediate <- as.numeric(CVLT$CVLT_Immediate)
+CVLT$CVLT_Immediate_z <- scale(CVLT$CVLT_Immediate)
+outcome_model28 <- glm(CVLT_Immediate_z ~ BMI + Age + Sex + DLICV, data = CVLT)
+summary(outcome_model28)
+
+DSF <- df_Older[complete.cases(df_Older[c("Digit_Span_Forward")]), ]
+DSF$Digit_Span_Forward <- as.numeric(DSF$Digit_Span_Forward)
+DSF$Digit_Span_Forward_z <- scale(DSF$Digit_Span_Forward)
+outcome_model29 <- glm(Digit_Span_Forward_z ~ BMI + Age + Sex + DLICV, data = DSF)
+summary(outcome_model29)
+
+
+MMSE <- df_Older[complete.cases(df_Older[c("MMSE")]), ]
+MMSE$MMSE <- as.numeric(MMSE$MMSE)
+MMSE$MMSE_z <- scale(MMSE$MMSE)
+outcome_model30 <- glm(MMSE_z ~ BMI + Age + Sex + DLICV, data = MMSE)
+summary(outcome_model30)
+
+
+
+
+#Association of proteomics and brain aging
+
+
+response_variable <- "SPARE_BA_Months"
+predictor_variables <- c(
+ "Age", "BMI_nearest_2.0", "Sex", "DLICV"
+)
+
+glm_results <- list()
+significant_lipids <- character(0)
+
+significant_proteomic_data <- data.frame(
+  Protein = character(0),
+  Coefficient = numeric(0)
+)
+
+for (protein_column in 464:1924) {
+  protein_variable <- colnames(Imaging_proteomics_2014)[protein_column]
+  formula <- as.formula(paste(response_variable, "~", lipid_variable, "+", paste(predictor_variables, collapse = "+")))
+  glm_model <- glm(formula, data = Imaging_proteomics_2014)
+  coefficient <- summary(glm_model)$coefficients[as.character(protein_variable), "Estimate"]
+  standard_error <- summary(glm_model)$coefficients[as.character(protein_variable), "Std. Error"]
+  t_statistic <- summary(glm_model)$coefficients[as.character(protein_variable), "t value"]
+  p_value <- summary(glm_model)$coefficients[as.character(protein_variable), "Pr(>|t|)"]
+
+  if (p_value < 1) {
+    # Add significant lipid data to the data frame
+    significant_proteomic_data <- rbind(significant_proteomic_data, data.frame(
+      Protein = protein_variable,
+      Coefficient = coefficient,
+      Standard_Error = standard_error,
+      T_Statistic = t_statistic,
+      P_Value = p_value
+      
+    ))
+  }
+}
+
+
+significant_lipids_data$FDR_Adjusted <- p.adjust(significant_lipids_data$P_Value, method = "BH")
+significant_lipids_data_FDR_BA <- significant_lipids_data %>% dplyr::filter(FDR_Adjusted<0.05)
+
+
+
+#Proteomics and BMI (continuous variable)
+
+
+adjusted_sd_results <- data.frame(
+  Protein = character(0),
+  Adjusted_SD_Difference = numeric(0),
+  Lower_CI = numeric(0),
+  Upper_CI = numeric(0),
+  P_Value = numeric(0),
+  FDR_Adjusted_P_Value = numeric(0)
+)
+
+for (protein_column in 464:1924) {
+  protein_variable <- colnames(Imaging_proteomics_2014)[protein_column]
+  formula <- as.formula(paste(protein_variable, "~", "BMI_nearest_2.0", "+ Age + Sex")) 
+  lm_model <- lm(formula, data = Imaging_proteomics_2014)
+  coef_bmi <- coef(lm_model)["BMI_nearest_2.0"]
+  se_bmi <- summary(lm_model)$coefficients["BMI_nearest_2.0", "Std. Error"]
+  sd_bmi <- sd(Imaging_proteomics_2014$BMI_nearest_2.0)
+  adjusted_sd_difference <- coef_bmi * sd_bmi
+  alpha <- 0.05
+  z_score <- qnorm(1 - alpha / 2)
+  lower_ci <- adjusted_sd_difference - z_score * se_bmi
+  upper_ci <- adjusted_sd_difference + z_score * se_bmi
+  p_value <- summary(lm_model)$coefficients["BMI_nearest_2.0", "Pr(>|t|)"]
+  fdr_adjusted_p_value <- p.adjust(p_value, method = "fdr")
+  adjusted_sd_results <- rbind(adjusted_sd_results, data.frame(
+    Protein = protein_variable,
+    Adjusted_SD_Difference = adjusted_sd_difference,
+    Lower_CI = lower_ci,
+    Upper_CI = upper_ci,
+    P_Value = p_value,
+    FDR_Adjusted_P_Value = fdr_adjusted_p_value
+  ))
+}
+
+
+significant_lipids_data_FDR <- adjusted_sd_results %>% dplyr::filter(FDR_Adjusted_P_Value<0.05)
+
+BMI_BAG_sum <- merge(significant_lipids_data_FDR_BA, adjusted_sd_results, by="Protein")
+BMI_BAG_sum_FDR <- BMI_BAG_sum %>% dplyr::filter(FDR_Adjusted_P_Value<0.05)
+
+
+
+
+
+
+
+
+
+# Calculate quartiles for the SPARE_AD column
+ANALYST_2_no_HLA_Q <- Imaging_proteomics_2014 %>%
+  mutate(SPARE_AD_Quartile = ntile(SPARE_AD, 4))
+
+
+#TAKE A SUBSET WITH SPARE HIGHEST AND LOWEST QUARTILE
+subset_ANALYST_2_no_HLA_Q <- subset(ANALYST_2_no_HLA_Q , SPARE_AD_Quartile %in% c("1", "4"))
+
+subset_ANALYST_2_no_HLA_Q_binary <- mutate(subset_ANALYST_2_no_HLA_Q, SPARE_AD_Quartile = case_when(
+  SPARE_AD_Quartile == "4" ~ 1,
+  SPARE_AD_Quartile == "1" ~ 0,
+  TRUE ~ SPARE_AD_Quartile  # Keep other values unchanged
+))
+
+logistic_results_df <- data.frame(
+  Protein = character(0),
+  Coefficient = numeric(0),
+  Odds_Ratio = numeric(0),
+  Lower_CI = numeric(0),
+  Upper_CI = numeric(0),
+  P_Value = numeric(0),
+  stringsAsFactors = FALSE
+)
+
+for (protein_column in 464:1926) {
+ 
+  protein_variable <- colnames(subset_ANALYST_2_no_HLA_Q_binary)[protein_column]
+  formula <- as.formula(paste("SPARE_AD_Quartile", "~", protein_variable)) 
+  logistic_model <- glm(formula, family = binomial, data = subset_ANALYST_2_no_HLA_Q_binary)
+  coefficient <- summary(logistic_model)$coefficients[as.character(protein_variable), "Estimate"]
+  p_value <- summary(logistic_model)$coefficients[as.character(protein_variable), "Pr(>|z|)"]
+  odds_ratio <- exp(coefficient)
+  ci <- confint(logistic_model, parm = protein_variable)
+  lower_ci <- exp(ci[1])
+  upper_ci <- exp(ci[2])
+  logistic_results_df <- rbind(logistic_results_df, data.frame(
+    Protein = protein_variable,
+    Coefficient = coefficient,
+    Odds_Ratio = odds_ratio,
+    Lower_CI = lower_ci,
+    Upper_CI = upper_ci,
+    P_Value = p_value
+  ))
+}
+
+logistic_results_df <- as.data.frame(logistic_results_df)
+library(dplyr)
+
+
+bonferroni_cutoff <- 0.05
+
+#calculate pearson's (point biserial correlation) r in quartiles
+correlation_results <- data.frame(
+  Protein = character(),
+  Correlation_with_SPARE_AD = numeric(),
+  stringsAsFactors = FALSE
+)
+
+for (i in 464:1926) {
+  protein_name <- colnames(subset_ANALYST_2_no_HLA_Q_binary)[i]
+  
+  # Calculate the Point-Biserial Correlation coefficient
+  correlation_result <- cor.test(subset_ANALYST_2_no_HLA_Q_binary$SPARE_AD_Quartile, 
+                                 subset_ANALYST_2_no_HLA_Q_binary[, i])
+  
+  correlation_coefficient <- correlation_result$estimate
+
+  correlation_results <- rbind(correlation_results, data.frame(
+    Protein = protein_name,
+    Correlation_with_SPARE_AD = correlation_coefficient
+  ))
+}
+
+
+
+
+
+
+#find BMI categories and protein bionarker assocaitons
+
+adjusted_sd_results <- data.frame(
+  Protein = character(0),
+  Adjusted_SD_Difference = numeric(0), # Not needed anymore, but kept for consistency
+  SE = numeric(0),
+  Lower_CI = numeric(0),
+  Upper_CI = numeric(0),
+  P_Value = numeric(0),
+  FDR_Adjusted_P_Value = numeric(0)
+)
+
+for (protein_column in 464:1924) {
+  protein_variable <- colnames(Imaging_proteomics_2014)[protein_column]
+  formula <- as.formula(paste(protein_variable, "~", "BMI", "+ Age + Sex"))
+  lm_model <- lm(formula, data = Imaging_proteomics_2014)
+  coef_bmi <- coef(lm_model)[grep("BMI", names(coef(lm_model)))]
+  se_bmi <- summary(lm_model)$coefficients[grep("BMI", rownames(summary(lm_model)$coefficients)), "Std. Error"]
+ alpha <- 0.05
+  z_score <- qnorm(1 - alpha / 2)
+  lower_ci <- numeric(length(coef_bmi))
+  upper_ci <- numeric(length(coef_bmi))
+  p_value <- numeric(length(coef_bmi))
+  for (i in 1:length(coef_bmi)) {
+    lower_ci[i] <- coef_bmi[i] - z_score * se_bmi[i]
+    upper_ci[i] <- coef_bmi[i] + z_score * se_bmi[i]
+    p_value[i] <- summary(lm_model)$coefficients[grep("BMI", rownames(summary(lm_model)$coefficients)), "Pr(>|t|)"][i]
+  }
+  fdr_adjusted_p_value <- p.adjust(p_value, method = "fdr")
+  for (i in 1:length(coef_bmi)) {
+    adjusted_sd_results <- rbind(adjusted_sd_results, data.frame(
+      BMI_Category = BMI,  
+      Protein = protein_variable,
+      Adjusted_SD_Difference = coef_bmi[i],  
+      SE = se_bmi[i],
+      Lower_CI = lower_ci[i],
+      Upper_CI = upper_ci[i],
+      P_Value = p_value[i],
+      FDR_Adjusted_P_Value = fdr_adjusted_p_value[i]
+    ))
+  }
+}
+significant_biomarkers_FDR <- adjusted_sd_results %>%
+  dplyr::filter(FDR_Adjusted_P_Value < 0.05)
+library(tibble)
+significant_biomarkers_FDR <- as_tibble(significant_biomarkers_FDR, rownames = "BMI_Category")
+
+
+
+
+
+
+
+#GDF15 and 145 ROIs
+selected_columns <- grep("^H_MUSE_Volume", names(Imaging_proteomics_2014_bv), value = TRUE)
+model_results_df <- data.frame(
+  BrainVolume = character(),
+  Coefficient = numeric(),
+  StdError = numeric(),
+  TStatistic = numeric(),
+  PValue = numeric(),
+  stringsAsFactors = FALSE
+)
+
+alpha <- 0.05
+
+for (col in selected_columns) {
+  formula <- as.formula(paste(col, "~ GDF15 + Age + Sex + DLICV"))
+  glm_model <- glm(formula, data = Imaging_proteomics_2014_bv)
+  summary_table <- summary(glm_model)$coefficients
+  OXT_summary <- summary_table["GDF15", c("Estimate", "Std. Error", "t value", "Pr(>|t|)")]
+  model_results_df <- rbind(model_results_df, data.frame(
+    BrainVolume = col,
+    Coefficient = OXT_summary["Estimate"],
+    StdError = OXT_summary["Std. Error"],
+    TStatistic = OXT_summary["t value"],
+    PValue = OXT_summary["Pr(>|t|)"]
+  ))
+}
+
+colnames(model_results_df) <- c("BrainVolume", "Coefficient", "StdError", "TStatistic", "PValue")
+
+
+model_results_df$FDR <- p.adjust(model_results_df$PValue, method = "BH")
+
+
+
+
+
+
+#Mediation analysis
+
+library(lavaan)
+library(dplyr)
+library(ggplot2)
+library(mediation)
+
+mediator_model <- lm(ThirdVen ~ GDF15 + BMI_Baseline + Age + Sex + DLICV, data = NEW_BMI_NEW)
+summary(mediator_model)
+outcome_model <- lm(SPARE_AD ~ ThirdVen + GDF15 + BMI_Baseline + Sex + Age + DLICV, data = NEW_BMI_NEW)
+summary(outcome_model)
+mediation_results <- mediate(mediator_model, outcome_model, treat = "GDF15", mediator = "ThirdVen", boot = TRUE, sims = 1000)
+
+# BMI as categorical variable
+
+mediator_model <- lm(ThirdVen ~ GDF15 + BMI_Category + Age + Sex + DLICV, data = NEW_BMI_NEW)
+summary(mediator_model)
+outcome_model <- lm(SPARE_AD ~ ThirdVen + GDF15 + BMI_Category + Sex + Age + DLICV, data = NEW_BMI_NEW)
+summary(outcome_model)
+mediation_results <- mediate(mediator_model, outcome_model, treat = "GDF15", mediator = "ThirdVen", boot = TRUE, sims = 1000)
+
+
+#Mediation analysis with the lateral ventricle
+mediator_model <- lm(Lateral_Ventricles ~ GDF15 + BMI_Baseline + Age + Sex + DLICV, data = NEW_BMI_NEW)
+summary(mediator_model)
+outcome_model <- lm(SPARE_AD ~ Lateral_Ventricles + GDF15 + BMI_Baseline + Sex + Age + DLICV, data = NEW_BMI_NEW)
+summary(outcome_model)
+mediation_results <- mediate(mediator_model, outcome_model, treat = "GDF15", mediator = "Lateral_Ventricles", boot = TRUE, sims = 1000)
+
+
+# BMI as categorical variable
+#Mediation analysis with the lateral ventricle
+mediator_model <- lm(Lateral_Ventricles ~ GDF15 + BMI_Category + Age + Sex + DLICV, data = NEW_BMI_NEW)
+summary(mediator_model)
+outcome_model <- lm(SPARE_AD ~ Lateral_Ventricles + GDF15 + BMI_Category + Sex + Age + DLICV, data = NEW_BMI_NEW)
+summary(outcome_model)
+mediation_results <- mediate(mediator_model, outcome_model, treat = "GDF15", mediator = "Lateral_Ventricles", boot = TRUE, sims = 1000)
+
