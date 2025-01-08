@@ -214,6 +214,31 @@ summary(outcome_model30)
 
 
 
+p_values <- c()
+
+extract_p_values <- function(model_summary) {
+  coef_table <- summary(model_summary)$coefficients
+  return(coef_table[-1, 4]) # Exclude intercept p-value
+}
+
+
+p_values <- c(p_values, extract_p_values(outcome_model19))
+p_values <- c(p_values, extract_p_values(outcome_model20))
+p_values <- c(p_values, extract_p_values(outcome_model21))
+p_values <- c(p_values, extract_p_values(outcome_model22))
+p_values <- c(p_values, extract_p_values(outcome_model23))
+p_values <- c(p_values, extract_p_values(outcome_model24))
+p_values <- c(p_values, extract_p_values(outcome_model25))
+p_values <- c(p_values, extract_p_values(outcome_model26))
+p_values <- c(p_values, extract_p_values(outcome_model27))
+p_values <- c(p_values, extract_p_values(outcome_model28))
+p_values <- c(p_values, extract_p_values(outcome_model29))
+p_values <- c(p_values, extract_p_values(outcome_model30))
+
+
+
+adjusted_p_values <- p.adjust(p_values, method = "fdr")
+
 #Association of proteomics and brain aging
 
 
