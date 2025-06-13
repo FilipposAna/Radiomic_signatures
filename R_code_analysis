@@ -14,6 +14,75 @@ df <- istaging %>%
   filter(BMI != "Unknown") 
 
 
+outcome_model2 <- glm(SPARE_BA ~ BMI + Age + Sex + DLICV + BMI*Age + BMI*Sex, data = df)
+summary(outcome_model2)
+library(emmeans)
+emm_bmi <- emmeans(outcome_model2, ~ BMI)
+contrast_bmi <- contrast(emm_bmi, method = "pairwise", adjust = "tukey")
+print(contrast_bmi)
+emm_bmi <- emmeans(outcome_model2, ~ BMI | Sex)
+contrast_bmi <- contrast(emm_bmi, method = "pairwise", adjust = "tukey")
+print(contrast_bmi)
+
+
+
+
+library(plotly)
+library(dplyr)
+models <- Basline_All_Ebiomedicine_MRI %>%
+  group_by(BMI) %>%
+  do(model = lm(SPARE_BA ~ Age, data = .))
+
+
+regression_data <- df %>%
+  group_by(BMI) %>%
+  do(data.frame(Age = seq(min(.$Age), max(.$Age), length.out = 100),
+                SPARE_BA = predict(lm(SPARE_BA ~ Age, data = .), newdata = data.frame(Age = seq(min(.$Age), max(.$Age), length.out = 100)))))
+
+
+library(plotly)
+
+plot <- plot_ly(data = df, 
+                x = ~Age, 
+                y = ~SPARE_BA, 
+                color = ~BMI, 
+                colors = c("Normal weight" = "deepskyblue4", 
+                           "Obese" = "black", 
+                           "Overweight" = "orange"),
+                type = 'scatter', 
+                mode = 'markers', 
+                marker = list(size = 6, opacity = 0.05)) %>%
+  layout(xaxis = list(title = "Chronological Age", 
+                      tickvals = c(45, 50, 55, 60, 65, 70, 76, 80, 85),
+                      titlefont = list(size = 16),  
+                      tickfont = list(size = 14)),
+         yaxis = list(title = "Predicted Brain Age", 
+                      titlefont = list(size = 16), 
+                      tickfont = list(size = 14),
+                      range = c(30, 100)),  # Restrict y-axis from 40 to 100
+         legend = list(title = list(text = "BMI", font = list(size = 14))),
+         font = list(family = "Arial", size = 14), 
+         margin = list(l = 80, r = 40, b = 80, t = 50),  
+         showlegend = TRUE,
+         plot_bgcolor = 'white',  
+         paper_bgcolor = 'white',
+         xaxis = list(showgrid = TRUE, gridcolor = 'lightgray'),
+         yaxis = list(showgrid = TRUE, gridcolor = 'lightgray'))
+
+# Add regression lines for each BMI category with consistent thickness
+for (category in unique(df$BMI)) {
+  plot <- plot %>%
+    add_lines(data = regression_data %>% filter(BMI == category), 
+              x = ~Age, 
+              y = ~SPARE_BA, 
+              line = list(width = 2),  
+              name = category, 
+              showlegend = FALSE)
+}
+
+# Show the plot
+plot
+
 
 
 df_Midlife <- df %>%
